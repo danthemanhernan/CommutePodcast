@@ -1,0 +1,25 @@
+[show]
+name = "The Engineering Commute"
+author = "Dan"
+
+[voice]
+provider = "openai"
+model = "gpt-4o-mini-tts"
+voice = "cedar"
+format = "mp3"
+instructions = """
+Speak like an engaging technology podcast host addressing an experienced controls and data
+engineer. Use a conversational, curious tone with moderate energy, natural pauses, and clear
+technical pronunciation. Emphasize important distinctions without sounding like a newscaster
+or advertisement. Read code identifiers naturally and expand acronyms only when the script does.
+"""
+
+[generation]
+target_chunk_characters = 3000
+max_chunk_characters = 3800
+output_directory = "episodes"
+
+[audio]
+normalize_loudness = true
+integrated_loudness_lufs = -16
+

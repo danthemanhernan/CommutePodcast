@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "commute-podcast"
+version = "0.1.0"
+description = "Turn technical podcast scripts into commute-ready audio."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Dan" }]
+dependencies = [
+  "openai>=1.99.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.4.0",
+  "ruff>=0.12.0",
+]
+
+[project.scripts]
+commute-podcast = "commute_podcast.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/commute_podcast"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+

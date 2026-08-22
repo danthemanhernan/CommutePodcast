@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.env
+dist/
+build/
+episodes/*.mp3
+episodes/*.wav
+episodes/*.json
+episodes/*/
+!episodes/.gitkeep
