@@ -18,8 +18,11 @@ or advertisement. Read code identifiers naturally and expand acronyms only when 
 target_chunk_characters = 3000
 max_chunk_characters = 3800
 output_directory = "episodes"
+retry_max_attempts = 3
+retry_base_delay_seconds = 1.0
+estimated_cost_per_1k_characters_usd = 0.015
+pronunciation_replacements = {}
 
 [audio]
 normalize_loudness = true
 integrated_loudness_lufs = -16
-

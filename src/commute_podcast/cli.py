@@ -4,9 +4,13 @@ import argparse
 import json
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+from commute_podcast.audio import validate_audio
 from commute_podcast.chunking import chunk_script
 from commute_podcast.config import load_config
 from commute_podcast.episode import estimate_minutes, generate_episode
+from commute_podcast.observability import configure_logging
 from commute_podcast.providers import OpenAITTSProvider
 
 
@@ -22,11 +26,19 @@ def _parser() -> argparse.ArgumentParser:
     generate.add_argument("script", type=Path)
     generate.add_argument("--title")
     generate.add_argument("--dry-run", action="store_true")
+
+    validate = subparsers.add_parser("validate", help="Validate a generated MP3 with ffprobe")
+    validate.add_argument("audio", type=Path)
     return parser
 
 
 def main() -> None:
+    load_dotenv()
+    configure_logging()
     args = _parser().parse_args()
+    if args.command == "validate":
+        print(json.dumps(validate_audio(args.audio), indent=2))
+        return
     config = load_config(args.config)
     script = args.script.read_text(encoding="utf-8").strip()
     if not script:
@@ -65,4 +77,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

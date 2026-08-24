@@ -12,6 +12,7 @@ license = { text = "MIT" }
 authors = [{ name = "Dan" }]
 dependencies = [
   "openai>=1.99.0",
+  "python-dotenv>=1.1.0",
 ]
 
 [project.optional-dependencies]
@@ -28,6 +29,9 @@ packages = ["src/commute_podcast"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+  "integration: opt-in tests that call a real paid provider",
+]
 
 [tool.ruff]
 line-length = 100
@@ -35,4 +39,3 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
-
