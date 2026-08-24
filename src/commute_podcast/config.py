@@ -25,6 +25,10 @@ class GenerationConfig:
     target_chunk_characters: int
     max_chunk_characters: int
     output_directory: Path
+    retry_max_attempts: int
+    retry_base_delay_seconds: float
+    estimated_cost_per_1k_characters_usd: float
+    pronunciation_replacements: dict[str, str]
 
 
 @dataclass(frozen=True)
@@ -51,6 +55,12 @@ def load_config(path: Path) -> AppConfig:
     if target <= 0 or maximum <= 0 or target > maximum:
         raise ValueError("Chunk sizes must be positive and target must not exceed maximum")
 
+    retry_max_attempts = int(generation.get("retry_max_attempts", 3))
+    retry_base_delay_seconds = float(generation.get("retry_base_delay_seconds", 1.0))
+    estimated_cost = float(generation.get("estimated_cost_per_1k_characters_usd", 0.0))
+    if retry_max_attempts <= 0 or retry_base_delay_seconds < 0 or estimated_cost < 0:
+        raise ValueError("Retry settings and estimated cost must be non-negative")
+
     output_directory = Path(generation["output_directory"])
     if not output_directory.is_absolute():
         output_directory = (path.resolve().parent / output_directory).resolve()
@@ -62,6 +72,10 @@ def load_config(path: Path) -> AppConfig:
             target_chunk_characters=target,
             max_chunk_characters=maximum,
             output_directory=output_directory,
+            retry_max_attempts=retry_max_attempts,
+            retry_base_delay_seconds=retry_base_delay_seconds,
+            estimated_cost_per_1k_characters_usd=estimated_cost,
+            pronunciation_replacements=dict(generation.get("pronunciation_replacements", {})),
         ),
         audio=AudioConfig(**raw["audio"]),
     )
