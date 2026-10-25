@@ -28,6 +28,15 @@ of drafting in chat, copying into the repository, and losing the relationship be
 script and its sources. Git provides history, review, and rollback; the manifest will provide the
 exact transcript hash used for an audio run.
 
+## Editorial depth standard
+
+The transcript is designed to teach one topic deeply during a commute, not to summarize a set of
+headlines. Aim for 18–22 minutes, approximately 2,700–3,300 words at 150 words per minute. Build
+from a motivating problem or story to a mental model, then explain the mechanism, boundaries,
+failure modes, worked examples, tradeoffs, and practical takeaways. Descriptive detail should
+increase understanding; avoid padding through repeated claims or generic enthusiasm. Use the
+`plan` command as a pre-generation quality gate for word count and estimated duration.
+
 ## Provider comparison
 
 The existing `SpeechProvider` protocol is the seam. A second adapter should translate its own API

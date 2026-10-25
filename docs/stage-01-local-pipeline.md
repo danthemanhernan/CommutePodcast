@@ -61,7 +61,7 @@ represent four groups:
 | --- | --- |
 | `ShowConfig` | show name and author |
 | `VoiceConfig` | provider, model, voice, output format, delivery instructions |
-| `GenerationConfig` | target/hard chunk limits and output directory |
+| `GenerationConfig` | target/hard chunk limits, working directory, and optional finished directory |
 | `AudioConfig` | loudness-normalization behavior |
 
 `AppConfig` aggregates them. `load_config()` validates that chunk sizes are positive and that the
@@ -186,6 +186,25 @@ The unit tests currently prove:
 They do not yet prove provider authentication, API response handling, `ffmpeg` output validity,
 interruption recovery, or actual loudness. Those gaps deliberately become Version 0.3 objectives.
 
+## Generate all new library episodes
+
+The `generate-all` command wraps the same single-episode orchestrator:
+
+```text
+content/episodes/*.md → discover dated files → skip finished slugs → generate pending files
+                                             ↘ episodes/finished/<slug>.mp3
+```
+
+Only top-level files named `YYYY-MM-DD-topic-slug.md` are discovered, keeping README files and
+archived bundles out of the queue. The first Markdown H1 supplies the title, with the filename as
+fallback. Before each job, the batch layer sets the working directory to `episodes/` and the
+publication directory to `episodes/finished/`. Each episode therefore gets a working directory at
+`episodes/<slug>/`, while only its final MP3 is written to `episodes/finished/`.
+
+The skip check is based on the published MP3, not merely a working directory or manifest. A
+transcript is therefore retried if an earlier run stopped before publication. Failures are
+collected while remaining files are attempted, and the command exits with status 1 if any failed.
+
 ## Data produced by one episode
 
 ```text
@@ -222,3 +241,26 @@ ffmpeg is for audio normalization and stitching many smaller audio files togethe
 Most of the unit tests are basic functionality unit tests, and there are some config and state machine tests as well, but this is missing full end-to-end tests, and all of the cloud functionality and architectural stuff is still missing there.
 - [x] I can describe what must change before this becomes a reliable cloud worker.
 There's still a lot from the architecture and storage and state tracking part that still needs to be worked out. Also, the architecture isn't built for a full cloud workflow.
+
+## Optional Apple Podcasts distribution
+
+`commute-podcast build-feed` delegates to `feed.py`, which validates existing finished MP3s,
+builds RSS, and prepares immutable media copies in a separate ignored output directory. It does
+not create a provider or change generation. See [the publishing walkthrough](apple-podcasts.md)
+for durable catalog state, HTTPS hosting, and device acceptance checks.
+
+## Efficient speech generation and quota recovery
+
+Keep `gpt-4o-mini-tts`, voice, and chunk sizes stable while resuming an unfinished episode. Completed
+MP3s are skipped by batch discovery; valid saved chunks are reused before another API call. The
+provider reuses one SDK client and sets SDK `max_retries=0`, leaving the application as the only
+retry layer. Billing failures (`insufficient_quota`, `credit_balance_exhausted`, or a billing hard
+limit) are terminal: batch output reports the failure and lists remaining scripts as `deferred`.
+Add credits through your API billing settings and rerun `generate-all`; never delete working chunks
+just to restart. Other episode-specific failures still allow the batch to continue.
+
+The model is billed for input text tokens and output audio tokens. MP3 compression and streaming
+reduce local transfer/storage overhead, not the tokens required to generate the spoken content.
+The existing character-based `estimated_cost_usd` is a legacy planning heuristic, not an accurate
+bill for this token-priced model; use API usage/billing for actual charges. Learn to distinguish a
+transient rate limit from exhausted credits and explain why nested retries multiply requests.

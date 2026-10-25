@@ -167,9 +167,11 @@ rather than intuition.
 
 **Implementation checklist**
 
-- [ ] Add a dated `content/episodes/` Markdown transcript format with front matter.
+- [x] Add a batch CLI path that generates dated transcripts from the content library.
 - [ ] Add transcript validation and a CLI path that generates from the content library.
 - [ ] Preserve source URLs, editorial status, and transcript hashes in episode manifests.
+- [ ] Apply the 18–22 minute teaching-episode editorial rubric with deep dives, examples, stories,
+      tradeoffs, and non-repetitive recaps.
 - [ ] Add ElevenLabs or another provider adapter without changing orchestration.
 - [ ] Create a fixed evaluation script containing technical terms and transitions.
 - [ ] Capture latency, cost, failures, and output metadata per provider.
@@ -180,6 +182,8 @@ rather than intuition.
 
 - [ ] One command generates comparable samples from two providers from the same transcript.
 - [ ] A transcript can be reviewed, corrected, and regenerated without copying text through chat.
+- [ ] A reviewed transcript in the target word-count range teaches its topic through mechanism,
+      examples, failure modes, and tradeoffs rather than headline-level summary.
 - [ ] Provider selection is documented with evidence and tradeoffs.
 
 ### Version 0.5: run generation as a containerized job
@@ -334,7 +338,8 @@ rather than intuition.
 
 **Implementation checklist**
 
-- [ ] Generate a standards-compliant private RSS feed.
+- [x] Build a private RSS feed from validated local MP3s with persistent IDs and dates.
+- [ ] Host the feed over HTTPS and verify Apple Podcasts streaming, seeking, and refresh.
 - [ ] Add episode retention and cleanup policies.
 - [ ] Add authentication or unguessable subscriber access.
 - [ ] Create operational runbooks and recovery tests.
@@ -362,3 +367,44 @@ Apply this to every pull request:
 - [ ] A new durable architectural choice has an ADR.
 - [ ] `make check` passes.
 - [ ] The learning log contains evidence and a short reflection.
+
+### Early distribution slice (2026-10-22)
+
+Local `build-feed` and portable media packaging are implemented ahead of cloud orchestration.
+See [the walkthrough](docs/apple-podcasts.md). Hosting and device acceptance remain pending;
+v1.0 is not complete. Learners should reproduce a stable rebuild and explain GUIDs, immutable
+media, feed-last publication, and bearer-link privacy.
+
+### Quota recovery hardening (2026-10-23)
+
+- [x] Distinguish exhausted billing credits from transient rate limits.
+- [x] Stop batch generation on exhausted credits and report deferred scripts.
+- [x] Eliminate nested SDK/application retries and reuse the speech client.
+- [x] Test quota classification, early batch stop, and adapter client/request behavior.
+- [ ] Complete the resumed real batch and validate finished MP3s after billing permits generation.
+
+Learners should reproduce safe resumption and explain the difference between generated audio token
+cost, connection overhead, and repeated failed requests. See ADR 0011 and the Stage 1 walkthrough.
+
+### Automatic S3 publication slice (2026-10-25)
+
+- [x] Generate pending episodes and publish through the shell entry point.
+- [x] Keep Boto3 and hosting configuration outside audio generation orchestration.
+- [x] Skip existing immutable media and publish RSS last; preserve local artifacts on upload failure.
+- [x] Add publish-only retries and AWS-free dry runs; support AWS login profiles through CRT.
+- [x] Test upload order, skip behavior, permission failures, corrupt media, dry runs, and CLI wiring.
+- [ ] Verify a real upload and subsequent Apple Podcasts streaming/refresh on configured hosting.
+
+Learners should reproduce a publish-only retry and explain why the RSS upload is the commit point,
+why a HEAD permission failure is not a missing object, and how Boto3 finds AWS login credentials.
+
+### Transcript access and episode chronology (2026-10-25)
+
+- [x] Correct dated publication timestamps without changing episode GUIDs or audio URLs.
+- [x] Export available narration scripts as readable HTML with RSS tags and episode-notes links.
+- [x] Publish validated transcript assets before the feed and test transcript-upload failures.
+- [x] Document the private-feed native transcript limitation, IAM access, and client sort settings.
+- [ ] Verify updated transcript links and episode dates on the live feed and iPhone.
+
+Learners should explain artifact timestamps versus editorial dates, stable identity during metadata
+migration, and why an RSS feature cannot bypass a podcast client's platform limitations.

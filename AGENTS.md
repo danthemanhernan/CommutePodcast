@@ -6,6 +6,12 @@ Build a production-quality system that turns curated technical scripts into comm
 episodes. Evolve it through complete vertical slices: local CLI, containerized worker, AWS job
 pipeline, remote MCP server, and autonomous private podcast feed.
 
+Episodes are learning podcasts, not headline briefings. New scripts should target roughly 18–22
+minutes of spoken audio (about 2,700–3,300 words at the planning rate), develop the central ideas
+with concrete examples and tradeoffs, and use story-driven explanations where they clarify the
+lesson. Add depth by explaining mechanisms, failure modes, and how an engineer would apply or
+evaluate the idea; do not pad scripts with repetition or vague commentary.
+
 ## Learning goal
 
 Treat every stage as a capstone lesson, not only a feature delivery. Explain important concepts at

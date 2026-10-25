@@ -6,7 +6,21 @@ from collections.abc import Callable
 from commute_podcast.observability import log_event
 
 
+def is_quota_exhausted(error: Exception) -> bool:
+    """Billing failures require user action, unlike temporary rate limiting."""
+    codes = {"insufficient_quota", "credit_balance_exhausted", "billing_hard_limit_reached"}
+    body = getattr(error, "body", None)
+    if isinstance(body, dict):
+        details = body.get("error", body)
+        if isinstance(details, dict):
+            if details.get("code") in codes or details.get("type") in codes:
+                return True
+    return getattr(error, "code", None) in codes
+
+
 def is_transient_provider_error(error: Exception) -> bool:
+    if is_quota_exhausted(error):
+        return False
     transient_types = (ConnectionError, TimeoutError)
     transient_names = {
         "APIConnectionError",

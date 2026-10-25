@@ -8,4 +8,4 @@ def test_loads_default_config() -> None:
     assert config.voice.model == "gpt-4o-mini-tts"
     assert config.voice.voice == "cedar"
     assert config.generation.output_directory.is_absolute()
-
+    assert config.generation.finished_directory is None

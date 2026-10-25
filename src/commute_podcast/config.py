@@ -29,6 +29,7 @@ class GenerationConfig:
     retry_base_delay_seconds: float
     estimated_cost_per_1k_characters_usd: float
     pronunciation_replacements: dict[str, str]
+    finished_directory: Path | None = None
 
 
 @dataclass(frozen=True)

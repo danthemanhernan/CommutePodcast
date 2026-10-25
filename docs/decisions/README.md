@@ -22,6 +22,9 @@ Do not create one for trivial formatting or easily reversible local refactors.
 | [0005](0005-explicit-episode-job-state.md) | Represent episode progress with explicit job state | Accepted |
 | [0006](0006-embed-episode-metadata.md) | Embed episode metadata in generated MP3s | Accepted |
 | [0007](0007-repository-transcript-source-of-truth.md) | Keep reviewed transcripts in the repository | Accepted |
+| [0008](0008-teaching-episode-depth.md) | Target 18–22 minute learning episodes | Accepted |
+
+| [0010](0010-private-podcast-feed.md) | Portable private RSS feed before cloud orchestration | Accepted |
 
 ## Template
 
@@ -48,3 +51,7 @@ What becomes easier, harder, more expensive, or constrained?
 
 What measurable condition would justify reconsideration?
 ```
+
+- [0011: Quota-aware speech retries](0011-quota-aware-speech-retries.md)
+- [0012: Boto3 publication after generation](0012-publish-with-boto3-after-generation.md)
+- [0013: Episode dates and script transcripts](0013-episode-dates-and-script-transcripts.md)
