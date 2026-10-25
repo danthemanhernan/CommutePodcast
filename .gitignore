@@ -13,3 +13,5 @@ episodes/*.wav
 episodes/*.json
 episodes/*/
 !episodes/.gitkeep
+
+episodes/*.log

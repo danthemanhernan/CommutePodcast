@@ -64,3 +64,47 @@ def test_pronunciation_replacements_are_applied_before_chunking(tmp_path: Path) 
     plan = plan_episode("We use SQL today.", "Pronunciation Episode", config)
 
     assert "sequel" in plan.chunks[0]
+
+
+def test_quota_exhaustion_is_not_retried():
+    from types import SimpleNamespace
+
+    import pytest
+    from openai import RateLimitError
+
+    error = RateLimitError(
+        "No credits",
+        response=SimpleNamespace(status_code=429, request=None, headers={}),
+        body={"type": "insufficient_quota", "code": "credit_balance_exhausted"},
+    )
+    calls = []
+
+    def fail():
+        calls.append(1)
+        raise error
+
+    with pytest.raises(RateLimitError):
+        retry_transient(
+            fail,
+            attempts=3,
+            base_delay_seconds=1,
+            episode_id="test",
+            chunk_id=1,
+            sleep=lambda _: pytest.fail("Unexpected retry"),
+        )
+    assert len(calls) == 1
+
+
+def test_temporary_rate_limit_remains_retryable():
+    from types import SimpleNamespace
+
+    from openai import RateLimitError
+
+    from commute_podcast.retry import is_transient_provider_error
+
+    error = RateLimitError(
+        "Slow down",
+        response=SimpleNamespace(status_code=429, request=None, headers={}),
+        body={"code": "rate_limit_exceeded"},
+    )
+    assert is_transient_provider_error(error)

@@ -51,7 +51,9 @@ class EpisodePlan:
         ]
 
 
-def plan_episode(script: str, title: str, config: AppConfig) -> EpisodePlan:
+def plan_episode(
+    script: str, title: str, config: AppConfig, *, output_slug: str | None = None
+) -> EpisodePlan:
     speech_script = apply_pronunciation_replacements(
         script, config.generation.pronunciation_replacements
     )
@@ -62,9 +64,11 @@ def plan_episode(script: str, title: str, config: AppConfig) -> EpisodePlan:
     )
     if not chunks:
         raise ValueError("The script is empty")
-    slug = slugify(title)
+    slug = slugify(output_slug or title)
     work_directory = config.generation.output_directory / slug
     work_directory.mkdir(parents=True, exist_ok=True)
+    finished_directory = config.generation.finished_directory or config.generation.output_directory
+    finished_directory.mkdir(parents=True, exist_ok=True)
     return EpisodePlan(
         script=script,
         title=title,
@@ -72,7 +76,7 @@ def plan_episode(script: str, title: str, config: AppConfig) -> EpisodePlan:
         chunks=chunks,
         job=EpisodeJob(title=title, slug=slug, chunk_count=len(chunks)),
         work_directory=work_directory,
-        final_path=config.generation.output_directory / f"{slug}.mp3",
+        final_path=finished_directory / f"{slug}.mp3",
     )
 
 
@@ -225,8 +229,9 @@ def generate_episode(
     provider: SpeechProvider | None,
     *,
     dry_run: bool = False,
+    output_slug: str | None = None,
 ) -> dict[str, object]:
-    plan = plan_episode(script, title, config)
+    plan = plan_episode(script, title, config, output_slug=output_slug)
     log_event("planning_completed", episode_id=plan.job.slug, phase="planning")
     if not dry_run and provider is None:
         raise ValueError("A speech provider is required unless dry_run is enabled")
